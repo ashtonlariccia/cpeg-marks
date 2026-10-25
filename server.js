@@ -49,6 +49,9 @@ app.get("/api/me", requireUser, (req, res) => {
 });
 
 app.get("/api/students/:id", requireUser, (req, res) => {
+  if (req.claims.role !== "ta" && Number(req.claims.sub) !== Number(req.params.id)) {
+    return res.status(403).json({ error: "You can only view your own marks." });
+  }
   const db = load();
   const student = db.users.find((row) => row.id === Number(req.params.id) && row.role === "student");
   if (!student) return res.status(404).json({ error: "No student with that id." });
